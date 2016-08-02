@@ -1,8 +1,0 @@
-/**
- * 
- */
-/**
- * @author kowalski
- *
- */
-package ks;
