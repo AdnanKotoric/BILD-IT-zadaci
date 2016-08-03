@@ -35,9 +35,9 @@ public class Zadatak_3 {
 			}
 			input.close();
 
-			System.out.println("Broj stringova je " + wordCounter);
-			System.out.println("Linija ima: " + lineCounter);
-			System.out.println("Broj karaktera u " + charCounter);
+			System.out.println("Broj rijeci je> " + wordCounter);
+			System.out.println("Broj linije je: " + lineCounter);
+			System.out.println("Broj karaktera jr: " + charCounter);
 
 		}// hvatanje greske u slucaju da fajl nije pronadjen
 		catch (FileNotFoundException ex) {
