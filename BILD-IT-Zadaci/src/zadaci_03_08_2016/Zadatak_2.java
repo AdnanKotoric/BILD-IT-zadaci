@@ -17,7 +17,7 @@ public class Zadatak_2 {
 			numbers[i] = input.nextDouble();
 		}
 		// pozivamo metodu koja nam printa najmanji element u nizu
-		System.out.println(min(numbers));
+		System.out.println("Najmanji element u nizu je: " + min(numbers));
 
 	}
 
