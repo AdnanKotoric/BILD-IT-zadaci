@@ -48,9 +48,9 @@ public class Zadatak_5 {
 			}
 		}
 
-		System.out.println("Prosjek brojeva iznosi: " + average);
-		System.out.println("Kolicina brojeva iznad ili jednaki prosjeku: "
+		System.out.println("Prosjek iznosi: " + average);
+		System.out.println("Brojeva iznad ili koji su jednaki prosjeku ima: "
 				+ over);
-		System.out.println("Kolicina brojeva ispod prosjeka iznosi: " + below);
+		System.out.println("Brojeva ispod prosjeka ima: " + below);
 	}
 }
