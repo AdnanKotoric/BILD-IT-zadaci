@@ -91,7 +91,7 @@ public class Zadatak_1 {
 					empNum = m[k][0];
 				}
 			}
-			// provjeravamo indekse za trenutne vrijednosti
+			// zamijenimo elemente na datim pozicijama sa trenutacnim ukoliko je to potrebno
 			if (currentIndex != i) {
 				m[currentIndex][0] = m[i][0];
 				m[currentIndex][1] = m[i][1];
