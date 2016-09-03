@@ -1,165 +1,159 @@
 package mini_4_hangman_and_battleships;
 
-import java.util.*;
+import java.util.InputMismatchException;
+import java.util.Random;
+import java.util.Scanner;
 
 public class Battleship {
-
-	static Scanner ulaz = new Scanner(System.in);
-
-	// Dimenzije table su 5x5
-	static int[][] dimenzije = new int[5][5];
+	static Scanner input = new Scanner(System.in);
 
 	public static void main(String[] args) {
+		// pravimo nizove za plocu i brodove
+		int[][] board = new int[5][5];
+		int[][] ships = new int[3][2];
+		int[] shoot = new int[2];
+		int attempts = 0, shotHit = 0;
+		// pozivamo metode
+		initBoard(board);
+		initShips(ships);
 
-		// Ovaj niz se koristi za lokacije brodica
-		int[][] brodovi = new int[3][2];
-
-		//Niz koji pamti pokusaje
-		int[] potez = new int[2];
-
-		int pokusaj = 0;
-		int pogodio = 0;
-
-		header();
-		brodovi(brodovi);
-		printTabla(dimenzije);
-		tabla(dimenzije);
-
-		//Petlja koja vrti igru
+		System.out.println();
+		// petljom igramo, mijenjamo plocu nakon svakog pokusaja i ispis
+		// korisniku da li je pogodio
 		do {
+			showBoard(board);
+			shoot(shoot);
+			// brojac pokusaja
+			attempts++;
+			// brojac pogodaka
+			if (hit(shoot, ships)) {
+				hint(shoot, ships, attempts);
+				shotHit++;
+			} else
+				hint(shoot, ships, attempts);
+			// mijenjamo plocu i spremamo stanje pogodaka i
+			changeboard(shoot, ships, board);
+		} while (shotHit != 3);
 
-			pucaj(potez);
-			pokusaj++;
+		System.out.println("\n\n\nKraj igre! Potopili ste 3 broda u "
+				+ attempts + " pokusaja");
+		showBoard(board);
+	}
 
-			if (pogodak(potez, brodovi)) {
+	// kreiramo plocu
+	public static void initBoard(int[][] board) {
+		for (int row = 0; row < 5; row++)
+			for (int column = 0; column < 5; column++)
+				board[row][column] = -1;
+	}
 
-				pogodio++;
-			} else {
-				System.out.print("Pokusajte ponovo:");
+	// ispis ploce
+	public static void showBoard(int[][] board) {
+		System.out.println("\t1 \t2 \t3 \t4 \t5");
+		System.out.println();
+
+		for (int row = 0; row < 5; row++) {
+			System.out.print((row + 1) + "");
+			for (int column = 0; column < 5; column++) {
+				if (board[row][column] == -1) {
+					System.out.print("\t" + "~");
+				} else if (board[row][column] == 0) {
+					System.out.print("\t" + "*");
+				} else if (board[row][column] == 1) {
+					System.out.print("\t" + "X");
+				}
 			}
-
-			update(potez, brodovi, dimenzije);
-
-			printTabla(dimenzije);
-
-		} while (pogodio != 3);
-
-		System.out.println("Pogodili ste 3 broda u " + pokusaj + " poteza.");
-		tabla(dimenzije);
+			System.out.println();
+		}
 	}
 
-	//Metoda uzima koordinate od korisnika
-	public static void pucaj(int[] potez) {
+	// nasuimcno postavljanje brodica
+	public static void initShips(int[][] ships) {
+		Random random = new Random();
 
-		try{
+		for (int ship = 0; ship < 3; ship++) {
+			ships[ship][0] = random.nextInt(5);
+			ships[ship][1] = random.nextInt(5);
+
+			for (int last = 0; last < ship; last++) {
+				if ((ships[ship][0] == ships[last][0])
+						&& (ships[ship][1] == ships[last][1]))
+					do {
+						ships[ship][0] = random.nextInt(5);
+						ships[ship][1] = random.nextInt(5);
+					} while ((ships[ship][0] == ships[last][0])
+							&& (ships[ship][1] == ships[last][1]));
+			}
+		}
+	}
+
+	// metoda za pokusaj korisnika i potop brodica
+	public static void shoot(int[] shoot) {
 		System.out.print("Red: ");
-		potez[0] = ulaz.nextInt() - 1;
-		
+		shoot[0] = checkInput();
+		shoot[0]--;
+
 		System.out.print("Kolona: ");
-		potez[1] = ulaz.nextInt() - 1;
-		
-		
-		}catch (ArrayIndexOutOfBoundsException ex){
-			System.err.println("Unesite brojeve 1-5!");
-			System.exit(0);
-			//Ako korisnik unese prevelik ili premal broj
-		}
-		catch (Exception e){
-			System.err.println("Unesite brojeve 1-5!");
-			System.exit(0);
-			//Ako unese nesto drugo
-		}
+		shoot[1] = checkInput();
+		shoot[1]--;
 	}
 
-	//Metoda provjerava je li brod pogodjen
-	public static boolean pogodak(int[] potez, int[][] ships) {
+	// provjeravamo da li na unesenoj lokaciji brodic
+	public static boolean hit(int[] shoot, int[][] ships) {
 
 		for (int ship = 0; ship < ships.length; ship++) {
-			if (potez[0] == ships[ship][0] && potez[1] == ships[ship][1]) {
-				System.out.print("Pogodili ste brod!");
+			if (shoot[0] == ships[ship][0] && shoot[1] == ships[ship][1]) {
+				System.out.printf("Potopili ste brodic na lokaciji (%d, %d)\n",
+						shoot[0] + 1, shoot[1] + 1);
 				return true;
-
 			}
 		}
 		return false;
 	}
 
-	//Metoda apdejta tabelu
-	public static void update(int[] potez, int[][] brodovi, int[][] tabla) {
-		if (pogodak(potez, brodovi))
-			dimenzije[potez[0]][potez[1]] = 1;
+	public static void hint(int[] shoot, int[][] ships, int attempt) {
+		int row = 0, column = 0;
+
+		for (int line = 0; line < ships.length; line++) {
+			if (ships[line][0] == shoot[0])
+				row++;
+			if (ships[line][1] == shoot[1])
+				column++;
+		}
+
+		System.out.printf("\nHint %d: \nred %d -> %d brod\n"
+				+ "kolona %d -> %d brod\n", attempt, shoot[0] + 1, row,
+				shoot[1] + 1, column);
+	}
+
+	// spremanje ploce nakon svakog pokusaja
+	public static void changeboard(int[] shoot, int[][] ships, int[][] board) {
+		if (hit(shoot, ships))
+			board[shoot[0]][shoot[1]] = 1;
 		else
-			dimenzije[potez[0]][potez[1]] = 2;
+			board[shoot[0]][shoot[1]] = 0;
 	}
 
-	//Metoda kreira tabelu
-	public static void tabla(int[][] dimenzije) {
+	// provjera unosa za lokaciju brodica
+	public static int checkInput() {
 
-		for (int i = 0; i < dimenzije.length; i++) {
-			for (int j = 0; j < dimenzije[i].length; j++) {
-				dimenzije[i][j] = 0;
+		int num = 0;
+		boolean error = true; // postavljamo da greska postoji
+
+		do {
+			try {
+				num = input.nextInt();
+				if (num < 1 || num > 5)// provjera duzine broja kartice
+					throw new InputMismatchException();
+				// ako je unos korektan petlja staje
+				error = false;// error postaje false, greske nema
+			} catch (InputMismatchException e) {
+				System.out.print("Pogresan unos, unsite ponovo:  ");
+				input.nextLine();
 			}
-		}
+		} while (error);// sve dok greska postoji ponavlja se unos
 
+		return num;// vracamo unijeti broj
 	}
 
-	//Metoda stampa tabelu
-	public static void printTabla(int[][] tabla) {
-
-		System.out
-				.print("\n*******************************************************\n");
-		for (int i = 0; i < tabla.length; i++) {
-			for (int j = 0; j < tabla[i].length; j++) {
-				if (tabla[i][j] == 0) {
-					System.out.print("     -     ");
-				} else if (tabla[i][j] == 1) {
-					System.out.print("     X     ");
-				} else
-					System.out.print("     F     ");
-			}
-			System.out.println();
-		}
-		System.out
-				.print("\n*******************************************************\n");
-	}
-
-	//Metoda kreira brodove
-	public static void brodovi(int[][] brodovi) {
-
-		Random rand = new Random();
-
-		for (int i = 0; i < 3; i++) {
-			brodovi[i][0] = rand.nextInt(5);
-			brodovi[i][1] = rand.nextInt(5);
-
-			for (int j = 0; j < i; j++) {
-				if ((brodovi[i][0] == brodovi[j][0])
-						&& (brodovi[i][1] == brodovi[j][1]))
-					do {
-						brodovi[i][0] = rand.nextInt(5);
-						brodovi[i][1] = rand.nextInt(5);
-					} while ((brodovi[i][0] == brodovi[j][0])
-							&& (brodovi[i][1] == brodovi[j][1]));
-			}
-
-		}
-	}
-
-	//Metoda ispisuje header
-	public static void header() {
-
-		// ASCII art
-		// http://patorjk.com/software/taag/#p=display&f=Graffiti&t=Type%20Something%20
-
-		System.out
-				.println("__________         __    __  .__                .__    .__ "
-						+ "\n\\______   \\_____ _/  |__/  |_|  |   ____   _____|  |__ |__|_____  ______ "
-						+ "\n |    |  _/\\__  \\    __\\   __\\  | _/ __ \\ /  ___/  |  \\|  \\____ \\/  ___/ "
-						+ "\n |    |   \\ / __ \\|  |  |  | |  |_\\  ___/ \\___ \\|   Y  \\  |  |_> >___ \\  "
-						+ "\n |______  /(____  /__|  |__| |____/\\___  >____  >___|  /__|   __/____  >      "
-						+ "\n       \\/      \\/                     \\/     \\/     \\/   |__|       \\/ ");
-
-		System.out.println();
-		System.out.println();
-	}
 }
