@@ -138,7 +138,7 @@ public class calendar {
 				if (lista.size() == 0)
 					System.out.println("Nemate podsjetnika!");
 				for (int i = 0; i < lista.size(); i++) {
-					System.out.print(lista.get(i));
+					System.out.println(lista.get(i));
 				}
 				// Ako file postoji ispisujemo u njeg niz
 				if (reminder.exists()) {
